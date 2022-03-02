@@ -36,7 +36,12 @@ app.get('/images',(req,res) =>{
 
 app.post('/savedata', (req, res) => {
     console.log(req.body); // needs app.use(express.json());  output: { username: 'markdown' }
-     console.log(req.files);  //needs  this one to work app.use(fileUpload)({
+     console.log(req.files.userImage.name); 
+     // wrap jpeg
+     const extension = req.files.userImage.name.split(".").pop();
+     console.log(extension); 
+
+     //needs  this one to work app.use(fileUpload)({
        // limits:{fileSize: 2 * 1024 * 1024}
        new Image({
         name: req.body.username,
@@ -48,8 +53,9 @@ app.post('/savedata', (req, res) => {
         const idImage = image._id.toString();
         console.log(idImage);
         console.log(image._id.toString());
-        Image.findByIdAndUpdate(idImage,{url:`/uploads/${idImage}`},{new: true, select: "url"}).then(image =>{
-            console.log(image)
+        Image.findByIdAndUpdate(idImage,{url:`/uploads/${idImage}.${extension}`},{new: true, select: "url"}).then(image =>{
+            console.log(image.url);
+            req.files.userImage.mv(path.join(__dirname, 'public', image.url))
         });
     })     
        // save the file inside public folder
