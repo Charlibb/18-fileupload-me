@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Upload file</h2>
+    <div>
+      <label for="usernameInp">User Name</label>
+      <input id="usernameInp" type="text" />
+    </div>
+    <div>
+      <label for="description">Description</label>
+      <input id="description" type="text" />
+    </div>
+    <div>
+      <label for="categories">Choose a category</label>
+
+      <select name="categories" id="categories">
+        <option value="nature">nature</option>
+        <option value="animals">animals</option>
+        <option value="people">people</option>
+        <option value="food">food</option>
+        <option value="tech">tech</option>
+      </select>
+    </div>
+    <div>
+      <label for="fileInp">user image</label>
+      <input
+        id="fileInp"
+        type="file"
+        accept="image/png, image/jpg, image/gif, image/jpeg"
+      />
+    </div>
+    <button id="submitBtn">submit</button>
+
+    <script>
+      const usernameInp = document.querySelector("#usernameInp");
+      const description = document.querySelector("#description");
+      const categories = document.querySelector("#categories");
+      const fileInp = document.querySelector("#fileInp");
+      const submitBtn = document.querySelector("#submitBtn");
+
+      submitBtn.addEventListener("click", async (e) => {
+        //console.log(fileInp.files);
+        e.preventDefault();
+        // FormData is a class that will allow us to send data to server side which contains binary or string
+        const formData = new FormData();
+        // add the username value (which is string) to formData
+        formData.append("username", usernameInp.value);
+        // image gallery
+        formData.append("description", description.value);
+        formData.append("categories", categories.value);
+        // add the file from fileInp to formData
+        formData.append("userImage", fileInp.files[0]);
+        // send data to server side using fetch
+        const response = await fetch("/savedata", {
+          method: "POST",
+          body: formData,
+        });
+        if (response.status === 413) {
+          alert("file size is greater than 2 mb");
+        } else {
+          const result = await response.json();
+          console.log(result);
+          if (result === "done") {
+            alert("thank you, the file has been uploaded");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
