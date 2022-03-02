@@ -4,6 +4,10 @@ require('dotenv').config();
 // import express-fileupload npm library 
 const fileUpload = require('express-fileupload');
 const app = express();
+const Image = require("./models/image");
+
+// connect to mongoDB , calling JS file db on /db
+require("./db")
 
 app.use(express.urlencoded({extended: false}))
 app.use(express.json());
@@ -34,10 +38,23 @@ app.post('/savedata', (req, res) => {
     console.log(req.body); // needs app.use(express.json());  output: { username: 'markdown' }
      console.log(req.files);  //needs  this one to work app.use(fileUpload)({
        // limits:{fileSize: 2 * 1024 * 1024}
-
+       new Image({
+        name: req.body.username,
+        category: req.body.categories,
+        description: req.body.description,
+        url: "blih",
+    
+    }).save((e,image)=>{
+        const idImage = image._id.toString();
+        console.log(idImage);
+        console.log(image._id.toString());
+        Image.findByIdAndUpdate(idImage,{url:`/uploads/${idImage}`},{new: true, select: "url"}).then(image =>{
+            console.log(image)
+        });
+    })     
        // save the file inside public folder
        // mv method to save (move) the file in some folder in our application
-       req.files.userImage.mv(path.join(__dirname, 'public', req.files.userImage.name))
+       req.files.userImage.mv(path.join(__dirname, 'public/uploads', req.files.userImage.name))
        .then(() =>{
            res.json('done')
        }).catch(error => {
